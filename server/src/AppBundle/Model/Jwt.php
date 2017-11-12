@@ -46,4 +46,9 @@ class Jwt
 
 		return $b64;
 	}
+
+	public function isValid($jwt):bool
+	{
+		return $jwt === $this->generate();
+	}
 }

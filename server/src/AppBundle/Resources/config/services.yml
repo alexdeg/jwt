@@ -6,3 +6,8 @@ services:
   auth_service:
     class: AppBundle\Service\AuthService
     arguments: ["@doctrine.orm.default_entity_manager", "@security.password_encoder", "@redis_service", "%secret%"]
+  event_listener.auth:
+    class: AppBundle\EventListener\AuthListener
+    arguments: ["@auth_service"]
+    tags:
+      - { name: kernel.event_listener, event: kernel.controller, method: onKernelController }

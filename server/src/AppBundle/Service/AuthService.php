@@ -77,7 +77,42 @@ class AuthService
 		throw new \Exception("Неверный пароль");
 	}
 
-	public function JwtGenerate(User $user)
+	/**
+	 * Проверяет, валиден ли токен
+	 * @param $jwtString
+	 * @return bool
+	 */
+	public function tokenValid($jwtString):bool
+	{
+		if (!$jwtString) {
+			return false;
+		}
+
+		$segments = explode('.', $jwtString);
+
+		if (count($segments) !== 3) {
+			return false;
+		}
+
+		$payload = json_decode(base64_decode($segments[1]));
+
+		if (!is_object($payload) || !property_exists($payload, 'login')) {
+			return false;
+		}
+
+		$user = $this->em->getRepository('AppBundle:User')->findOneBy(['login' => $payload->login]);
+		if (!$user) {
+			return false;
+		}
+
+		$user->setAuthKey($this->redis->get("authKey:" . $user->getLogin()));
+
+		$jwt = new Jwt($user);
+
+		return $jwt->isValid($jwtString);
+	}
+
+	private function JwtGenerate(User $user)
 	{
 		$jwt = new Jwt($user);
 		return $jwt->generate();
