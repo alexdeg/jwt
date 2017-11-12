@@ -36,6 +36,8 @@ class User implements UserInterface
      */
     private $password;
 
+    private $authKey;
+
 
     /**
      * Get id
@@ -147,6 +149,25 @@ class User implements UserInterface
 	public function eraseCredentials()
 	{
 
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getAuthKey()
+	{
+		return $this->authKey;
+	}
+
+	/**
+	 * @param mixed $authKey
+	 * @return User
+	 */
+	public function setAuthKey($authKey)
+	{
+		$this->authKey = $authKey;
+
+		return $this;
 	}
 }
 

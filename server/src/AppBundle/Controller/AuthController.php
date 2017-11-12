@@ -10,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use \Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Class AuthController
@@ -21,40 +22,44 @@ class AuthController extends Controller
 	/**
 	 * @Route("/login")
 	 * @Method("POST")
+	 * @param Request $request
+	 * @return JsonResponse
 	 */
 	public function loginAction(Request $request)
 	{
-		$login = $request->request->get('login');
-		$password = $request->request->get('password');
-		var_dump($login, $password);die;
+		$r = new Response();
 
+		try {
+			$jwt = $this->get('auth_service')->login(
+				$request->request->get('login'),
+				$request->request->get('password')
+			);
+
+			$r->addData('jwt', $jwt);
+		} catch (\Exception $exception) {
+			$r->setError("Тыдыц. " . $exception->getMessage());
+		}
+
+		return $r->response();
 	}
 
 	/**
 	 * @Route("/register")
 	 * @Method("POST")
+	 * @param Request $request
+	 * @return JsonResponse
 	 */
-	public function registerAction(UserPasswordEncoderInterface $encoder, Request $request)
+	public function registerAction(Request $request)
 	{
 		$response = new Response();
 
-		/** @var EntityManagerInterface $em */
-		$em = $this->get('doctrine.orm.default_entity_manager');
-
-		$login = $request->request->get('login');
-		$password = $request->request->get('password');
-		// whatever *your* User object is
-		$user = new User();
-		$user->setLogin($login);
-		$encoded = $encoder->encodePassword($user, $password);
-
-		$user->setPassword($encoded);
-
 		try {
-			$em->persist($user);
-			$em->flush();
+			$this->get('auth_service')->register(
+				$request->request->get('login'),
+				$request->request->get('password')
+			);
 		} catch (\Exception $exception) {
-			$response->setError("Login exists", 422);
+			$response->setError("Логин уже занят", 422);
 		}
 
 		return $response->response();

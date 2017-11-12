@@ -1,0 +1,8 @@
+services:
+#    redis.example:
+#        class: RedisBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]
+
+  auth_service:
+    class: AppBundle\Service\AuthService
+    arguments: ["@doctrine.orm.default_entity_manager", "@security.password_encoder", "@redis_service", "%secret%"]
