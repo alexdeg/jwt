@@ -1,0 +1,8 @@
+services:
+#    redis.example:
+#        class: RedisBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]
+
+  redis_service:
+    class: RedisBundle\Service\RedisService
+    arguments: ["@snc_redis.default", '%application_name%']
